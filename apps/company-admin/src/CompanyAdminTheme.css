@@ -1,0 +1,17 @@
+/* Company Admin Specific Theme */
+:root {
+    --primary-color: #673ab7;
+    /* Deep Purple */
+    --secondary-color: #9e9e9e;
+    /* Gray */
+    --accent-color: #4caf50;
+    /* Green */
+    --danger-color: #f44336;
+    /* Red */
+
+    /* Backgrounds can be slightly adjusted if desired */
+    --background-dark: #1a1a2a;
+    /* Slightly different dark */
+    --card-background: #2a2a3a;
+    --input-background: #3a3a4a;
+}

@@ -3,11 +3,13 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import CreateProjectForm from '../components/CreateProjectForm';
 import SubmitExpenseForm from '../components/SubmitExpenseForm';
-import '../App.css'; // Make sure this import is present
+import '../App.css';
+import '../UserPortalTheme.css';
 
 function DashboardPage() {
     const [projects, setProjects] = useState([]);
     const [expenses, setExpenses] = useState([]);
+    const [departments, setDepartments] = useState([]); // New state for departments
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [userRole, setUserRole] = useState(null);
@@ -24,8 +26,9 @@ function DashboardPage() {
 
         setUserRole(user.role);
 
-        const fetchProjectsAndExpenses = async () => {
+        const fetchAllData = async () => {
             try {
+                // Fetch Projects
                 const projectsResponse = await axios.get('http://localhost:5000/api/exp-service/projects', {
                     headers: {
                         Authorization: `Bearer ${token}`
@@ -33,12 +36,21 @@ function DashboardPage() {
                 });
                 setProjects(projectsResponse.data);
 
+                // Fetch Expenses
                 const expensesResponse = await axios.get('http://localhost:5000/api/exp-service/expenses', {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
                 });
                 setExpenses(expensesResponse.data);
+
+                // Fetch Departments (needed to map project department IDs to names)
+                const departmentsResponse = await axios.get('http://localhost:5000/api/registry/departments', {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+                setDepartments(departmentsResponse.data);
 
             } catch (err) {
                 console.error('Failed to fetch data:', err);
@@ -47,8 +59,18 @@ function DashboardPage() {
                 setLoading(false);
             }
         };
-        fetchProjectsAndExpenses();
+        fetchAllData();
     }, [navigate]);
+
+    const getDepartmentName = (deptId) => {
+        const department = departments.find(dept => dept._id === deptId);
+        return department ? department.name : 'N/A';
+    };
+
+    const getProjectName = (projectId) => {
+        const project = projects.find(proj => proj._id === projectId);
+        return project ? project.name : 'N/A';
+    };
 
     const handleProjectCreated = (newProject) => {
         setProjects(prevProjects => [...prevProjects, newProject]);
@@ -95,7 +117,7 @@ function DashboardPage() {
                             <div key={project._id} className="list-item">
                                 <div>
                                     <h3>{project.name}</h3>
-                                    <p><strong>Department:</strong> {project.department}</p>
+                                    <p><strong>Department:</strong> {getDepartmentName(project.department)}</p> {/* Display name */}
                                     <p><strong>Budget:</strong> ${project.budget}</p>
                                     <p><strong>Status:</strong> {project.status}</p>
                                 </div>
@@ -117,6 +139,7 @@ function DashboardPage() {
                                     <p><strong>Description:</strong> {expense.description}</p>
                                     <p><strong>Amount:</strong> ${expense.amount}</p>
                                     <p><strong>Category:</strong> {expense.category}</p>
+                                    <p><strong>Project:</strong> {getProjectName(expense.project)}</p> {/* Display name */}
                                 </div>
                             </div>
                         ))

@@ -5,8 +5,8 @@ import CreateCompanyForm from '../components/CreateCompanyForm';
 import CreateDepartmentForm from '../components/CreateDepartmentForm';
 import PendingExpensesList from '../components/PendingExpensesList';
 import EditCompanyForm from '../components/EditCompanyForm';
-import '../App.css'; 
-import '../CompanyAdminTheme.css'; 
+import '../App.css';
+import '../CompanyAdminTheme.css';
 
 function DashboardPage() {
     const [companies, setCompanies] = useState([]);
@@ -66,7 +66,7 @@ function DashboardPage() {
 
     const handleLogout = () => {
         localStorage.removeItem('token');
-        localStorage.removeItem('user'); 
+        localStorage.removeItem('user');
         navigate('/');
     };
 
@@ -79,7 +79,7 @@ function DashboardPage() {
                 <h1>Company Admin Dashboard</h1>
                 <button onClick={handleLogout}>Log Out</button>
             </div>
-            
+
             <div className="card-grid">
                 <div className="card">
                     <CreateCompanyForm onCompanyCreated={handleCompanyCreated} />
@@ -88,9 +88,9 @@ function DashboardPage() {
                     <CreateDepartmentForm companies={companies} onDepartmentCreated={handleDepartmentCreated} />
                 </div>
             </div>
-            
+
             <PendingExpensesList />
-            
+
             <div className="card">
                 <h2>Existing Companies</h2>
                 {editingCompany ? (
@@ -107,6 +107,17 @@ function DashboardPage() {
                                     <div>
                                         <h3>{company.name}</h3>
                                         <p><strong>Contact:</strong> {company.contactEmail}</p>
+                                        {/* Display departments for this company */}
+                                        {departments.filter(dept => dept.company === company._id).length > 0 && (
+                                            <div style={{ marginTop: '10px', borderTop: '1px solid var(--border-color)', paddingTop: '10px' }}>
+                                                <p style={{ fontWeight: 'bold', color: 'var(--text-light)' }}>Departments:</p>
+                                                <ul style={{ listStyleType: 'none', padding: 0, margin: 0 }}>
+                                                    {departments.filter(dept => dept.company === company._id).map(dept => (
+                                                        <li key={dept._id} style={{ color: 'var(--text-muted)' }}>- {dept.name}</li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
                                     </div>
                                     <button onClick={() => setEditingCompany(company)} className="btn-secondary">Edit</button>
                                 </div>
@@ -119,13 +130,16 @@ function DashboardPage() {
             </div>
 
             <div className="card">
-                <h2>Existing Departments</h2>
+                <h2>Existing Departments (All)</h2> {/* Changed title for clarity */}
                 <div>
                     {departments.length > 0 ? (
                         departments.map(department => (
                             <div key={department._id} className="list-item">
-                                <h3>{department.name}</h3>
-                                <p><strong>Company ID:</strong> {department.company}</p>
+                                <div>
+                                    <h3>{department.name}</h3>
+                                    {/* Display company name instead of ID */}
+                                    <p><strong>Company:</strong> {companies.find(c => c._id === department.company)?.name || 'N/A'}</p>
+                                </div>
                             </div>
                         ))
                     ) : (
